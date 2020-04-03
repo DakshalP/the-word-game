@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome to the Game!</h2>
+        <p id="tagline">Join with your name.</p>
+        <div id="people">
+            <div id="output"></div>
+        </div>
+        <div id="input">
+            <input type="text" id="name" placeholder="Name">
+            <button id="join">Join</button>
+        </div>
+        <div id="controls" style="display: none">
+            <button id="trigger" class="emphasize">Show my clue</button>
+            <div id="board"></div>
+            <button id="give">Give word</button>
+            <button id="boardButton">Create board</button>
+            </div>
+        </div>
+    </div>
+    <div class="modal">
+        <div class="modal-content">
+            <div id="clue">The word has not been given yet.</div>
+            <div class="close-button">Ok</div>
+            </div>
+        </div>
+    </div>
+    <p style="text-align: center; color: lightgray">made by dakshal p</p>
+    <script defer src="/main.js"></script>
+</body>
+</html>

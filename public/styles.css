@@ -1,0 +1,146 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 10px;
+}
+
+h2{
+    color: #575ed8;
+}
+
+.container{
+    max-width: 600px;
+    margin: 30px auto;
+    border: 1px solid #ddd;
+    box-shadow: 1px 3px 10px rgba(0,0,0,0.05);
+    border-radius: 2px;
+    padding: 20px;
+}
+
+#people{
+    height: 100px;
+    overflow: auto;
+    background: #f9f9f9;
+}
+
+#output p{
+    padding: 14px 0px;
+    margin: 0 20px;
+    border-bottom: 1px solid #e9e9e9;
+    color: #555;
+}
+
+label{
+    box-sizing: border-box;
+    display: block;
+    padding: 10px 20px;
+}
+
+input{
+    padding: 10px 20px;
+    box-sizing: border-box;
+    background: #eee;
+    border: 0;
+    display: block;
+    width: 100%;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    font-family: Nunito, sans-serif;
+    font-size: 16px;
+}
+
+table {
+    width: 100%;
+}
+td, th {
+    padding: 20px 5px;
+    text-align: center;
+    font-size: 20px;
+}
+th {
+    color: #575ed8;
+}
+td {
+    border: 2px solid #575ed8;
+}
+tr:nth-child(even) td:nth-child(odd), 
+tr:nth-child(odd) td:nth-child(even)
+{  
+    background-color: #575ed8;
+    color: white;
+}
+
+button{
+    background: #575ed8;
+    cursor: pointer;
+    color: #fff;
+    font-size: 18px;
+    border: 0;
+    padding: 12px 0;
+    width: 100%;
+    display: block;
+    margin: 10px auto;
+    border-radius: 5px;
+    box-shadow: 1px 3px 10px rgba(0,0,0,0.05);
+    transition: box-shadow 0.5s ease;
+}
+button:hover {
+    box-shadow: 1px 3px 10px #575dd8af;
+}
+button:active {
+    transform: scale(0.98);
+}
+button.emphasize {
+    background-color: #3a3e96;
+}
+
+/* Modal */
+
+.modal {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #00000067;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.1);
+    transition: visibility 0s linear 0.25s, opacity 0.25s 0s, transform 0.25s;
+    font-size: 20px;
+}
+.modal-content {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 1rem 1.5rem;
+    width: 24rem;
+    border-radius: 0.5rem;
+}
+.close-button {
+    width: 200px;
+    margin: 10px 20px;
+    display:inline-block;
+    padding: 0.5rem;
+    line-height: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    color: white;
+    font-weight: 700;
+    background-color: #575ed8;
+}
+.modal-content h3 {
+    margin: 10px;
+}
+.close-button:hover {
+    background-color: #575ed8;
+}
+.show-modal {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1.0);
+    transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
