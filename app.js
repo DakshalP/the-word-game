@@ -14,7 +14,7 @@ app.get('/board', function(req,res) {
     res.sendFile(__dirname + '/public/board.html');
 })
 
-var server = app.listen(4000, () => {
+var server = app.listen(process.env.PORT || 8080, () => {
     console.log('App listening on port ' + server.address().port)
 })
 
