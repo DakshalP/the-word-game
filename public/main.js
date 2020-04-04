@@ -50,7 +50,9 @@ join.addEventListener('click', ()=> {
 })
 
 give.addEventListener('click', ()=>{
-    socket.emit('giveWord');
+    if(confirm("Send word? Do this when everyone has joined.")) {
+        socket.emit('giveWord');
+    }
 })
 
 boardButton.addEventListener('click', ()=>{
