@@ -13,23 +13,35 @@
         <h2>Welcome to the game!</h2>
         <p id="tagline">Join with your name.</p>
         <div id="people">
+            <h3>People who have joined</h3>
             <div id="output"></div>
         </div>
         <div id="input">
             <input type="text" id="name" placeholder="Name">
             <button id="join">Join</button>
+            <a href="#" id="instructions">How to play</a>
         </div>
         <div id="controls" style="display: none">
             <button id="trigger" class="emphasize">Show my clue</button>
             <div id="board"></div>
-            <button id="give">Give word</button>
+            <button id="give">Give clues</button>
             <button id="boardButton">Create board</button>
             </div>
         </div>
     </div>
     <div class="modal">
         <div class="modal-content">
-            <div id="clue">The word has not been given yet.</div>
+            <div id="clue">
+                <h3>How to play</h3> 
+                <ul>
+                    <li>You start with a board with words on it. </li>
+                    <li>Everyone will get the location of a word on the board... except for one person.</li>
+                    <li>After that, take turns saying a related word without giving away the secret word.</li>
+                    <li>For example, if the word is apple you might say "red".</li>
+                    <li><em>Even the person who doesn't know the word has to say a related word. Try not to get caught!</em></li>
+                    <li><strong>At the end, you guess who doesn't know the word.</strong></li>
+                </ul>
+            </div>
             <div class="close-button">Ok</div>
             </div>
         </div>

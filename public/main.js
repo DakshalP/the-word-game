@@ -12,21 +12,22 @@ const join = document.getElementById('join'),
     boardButton = document.getElementById('boardButton'),
     board = document.getElementById('board'),
     give = document.getElementById('give'),
-    clue = document.getElementById('clue');
+    clue = document.getElementById('clue'),
+    instructions = document.getElementById('instructions');
 
 var peopleArr = [];
 var numWords;
 var clueNum = 0;
 
 //quick title case
-function toTitleCase(str) {
-    return str.replace(
-        /\w\S*/g,
-        function(txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-        }
-    );
-}
+// function toTitleCase(str) {
+//     return str.replace(
+//         /\w\S*/g,
+//         function(txt) {
+//             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+//         }
+//     );
+// }
 
 function updateOutput() {
     console.log(peopleArr);
@@ -39,13 +40,15 @@ function updateOutput() {
 //DOM events
 join.addEventListener('click', ()=> {
     if(namePrompt.value.trim() != "") {
-        socket.emit('addPerson', toTitleCase(namePrompt.value));
+        socket.emit('addPerson', namePrompt.value);
         namePrompt.value = "";
 
         tagline.innerText="You're in! Do you see your name?"
         input.innerHTML="";
         controls.style.display = "block";
         people.style.height = "250px";
+
+        clue.innerText = "The clues have not been given yet."
     }
 })
 
@@ -73,6 +76,10 @@ boardButton.addEventListener('click', ()=>{
     }
 })
 
+instructions.addEventListener('click', ()=>{
+    toggleModal();
+})
+
 
 //Listen for socket events
 socket.on('initializeLobby', (arr) =>{
@@ -94,7 +101,7 @@ socket.on('removePerson', (person) => {
 })
 socket.on('giveWord', (word) =>{
     clueNum++;
-    clue.innerHTML = (word === "?") ? `(Clue ${clueNum}) You're the one who <strong>doesn't know the word</strong>... don't tell anyone.` : `(Clue ${clueNum}) The word is at <strong>${word}</strong>`;
+    clue.innerHTML = (word === "?") ? `<h3>Clue ${clueNum}</h3> You're the one who <strong>doesn't know the word</strong>... don't tell anyone.` : `<h3>Clue ${clueNum}</h3> The word is at <strong>${word}</strong>`;
     toggleModal();
 })
 socket.on('changeBoard', (boardWords)=>{
