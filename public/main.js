@@ -18,6 +18,7 @@ const join = document.getElementById('join'),
 var peopleArr = [];
 var numWords;
 var clueNum = 0;
+var name;
 
 //quick title case
 // function toTitleCase(str) {
@@ -40,6 +41,7 @@ function updateOutput() {
 //DOM events
 join.addEventListener('click', ()=> {
     if(namePrompt.value.trim() != "") {
+        name = namePrompt.value;
         socket.emit('addPerson', namePrompt.value);
         namePrompt.value = "";
 
@@ -98,6 +100,18 @@ socket.on('removePerson', (person) => {
     console.log(person);
     peopleArr.splice(peopleArr.indexOf(person.name), 1)
     updateOutput();
+})
+socket.on('disconnect', ()=>{
+    tagline.innerText = "Disconnected from the game... "
+    socket.on('reconnecting', ()=>{
+        tagline.innerText = "Disconnected from the game... reconnecting."
+    })
+    socket.on('reconnect', ()=>{
+        tagline.innerText = "Reconnected to the game!"
+        if(typeof(name) != 'undefined') {
+            socket.emit('addPerson', name);
+        }
+    })    
 })
 socket.on('giveWord', (word) =>{
     clueNum++;

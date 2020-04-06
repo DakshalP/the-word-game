@@ -43,6 +43,7 @@ h3 {
     overflow: auto;
     background: #f9f9f9;
     box-shadow: inset 0 0 5px lightgray;
+    transition: height 0.8s ease;
 }
 #people h3 {
     color: lightgray;
