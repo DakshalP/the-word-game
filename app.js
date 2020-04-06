@@ -77,7 +77,7 @@ function addPerson(name, id) {
 var io = socket(server);
 var connectedArr = [];
 var previousBoard;
-var clueNum = 0;
+var clueNum = 100;
 
 io.on('connection', (socket)=>{
     console.log('made socket connection: ', socket.id);
