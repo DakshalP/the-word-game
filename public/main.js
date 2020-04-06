@@ -97,18 +97,25 @@ socket.on('addPerson', (person)=>{
     people.scrollTop = people.scrollHeight;
 })
 socket.on('removePerson', (person) => {
-    console.log(person);
     peopleArr.splice(peopleArr.indexOf(person.name), 1)
     updateOutput();
 })
 socket.on('disconnect', ()=>{
     tagline.innerText = "Disconnected from the game... "
+    if(typeof(name) != 'undefined') {
+        //remove own name from connected people now that the server can't do that
+        peopleArr.splice(peopleArr.indexOf(name), 1)
+        updateOutput();
+    }
+
     socket.on('reconnecting', ()=>{
         tagline.innerText = "Disconnected from the game... reconnecting."
     })
+
     socket.on('reconnect', ()=>{
         tagline.innerText = "Reconnected to the game!"
         if(typeof(name) != 'undefined') {
+            //reconnect with name if name was entered before.
             socket.emit('addPerson', name);
         }
     })    
