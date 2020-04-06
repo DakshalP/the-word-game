@@ -18,15 +18,6 @@ var server = app.listen(process.env.PORT || 8080, () => {
     console.log('App listening on port ' + server.address().port)
 })
 
-
-function searchId(nameKey, myArray){
-    for (var i=0; i < myArray.length; i++) {
-        if (myArray[i].id === nameKey) {
-            return i;
-        }
-    }
-}
-
 //random word id generation, each role is put into roleArr when generateRoleArr() is called
 let roleArr = []
 let lengthOfBoard = 4; //only length so far
@@ -114,11 +105,11 @@ io.on('connection', (socket)=>{
     socket.on('disconnect', ()=> {
         console.log('Got disconnect!: ', socket.id);
   
-        let id = searchId(socket.id, connectedArr);
-        if(typeof(id) != "undefined") {
-            console.log("REMOVE : " ,connectedArr[id].name);
-            io.sockets.emit('removePerson', connectedArr[id]);
-            connectedArr.splice(connectedArr.map(obj => obj.id).indexOf(id), 1);
+        let index = connectedArr.map(obj => obj.id).indexOf(socket.id);
+        if(index != -1) {
+            console.log("REMOVE : " ,connectedArr[index].name);
+            io.sockets.emit('removePerson', connectedArr[index]);
+            connectedArr.splice(index, 1);
             console.log(connectedArr);
         }
     });
