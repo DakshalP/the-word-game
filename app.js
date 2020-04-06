@@ -85,8 +85,14 @@ var previousBoard;
 io.on('connection', (socket)=>{
     console.log('made socket connection: ', socket.id);
     socket.emit('refreshLobby', connectedArr);
-    socket.emit('giveID', socket.id);
     if(previousBoard != null) socket.emit('changeBoard', previousBoard);
+
+    /* 
+    This is a flaw that needs to be fixed.
+    The app doesn't require users to make their own unique username, so instead it sends them an id to use as unique.
+    Should be fixed with unique usernames.
+    */
+    socket.emit('giveID', socket.id);
 
     //handle events
     socket.on('addPerson', (name) => {
@@ -114,11 +120,12 @@ io.on('connection', (socket)=>{
 
     socket.on('connectAgain', (client)=>{
         if(connectedArr.find(obj => obj.id === client.id)) {
-            //if already in connectedArr, just refresh   
+            //if already in connectedArr, replace
+            connectedArr.splice(connectedArr.map(obj => obj.id).indexOf(client.id), 1, {name: client.name, id: socket.id})
             socket.emit('refreshLobby', connectedArr);
         }else {
-            //else add the person back into connectedArr
-            addPerson(client.name, client.id);
+            //else add a new person back into connectedArr
+            addPerson(client.name, socket.id);
         }
     })
 
