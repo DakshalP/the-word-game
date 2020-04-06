@@ -67,14 +67,19 @@ function randLetters(length) {
  }
 
 function addPerson(name, id) {
-    connectedArr.push(
-        {
-            name: name,
-            id: id
-        }
-    )
-    console.log(connectedArr)
-    io.sockets.emit('addPerson', name);
+    if(!(connectedArr.find(obj => obj.id === id))){
+        connectedArr.push(
+            {
+                name: name,
+                id: id
+            }
+        )
+        console.log('ADD', name)
+        console.log(connectedArr)
+        io.sockets.emit('addPerson', name);
+    } else {
+        console.log(name, 'already exists.')
+    }
 }
 
 //Socket setup
@@ -113,11 +118,13 @@ io.on('connection', (socket)=>{
         if(typeof(id) != "undefined") {
             console.log("REMOVE : " ,connectedArr[id].name);
             io.sockets.emit('removePerson', connectedArr[id]);
-            connectedArr.splice(id, 1);
+            connectedArr.splice(connectedArr.map(obj => obj.id).indexOf(id), 1);
             console.log(connectedArr);
         }
     });
 
+
+    // this can be simplified through the use of unique usernames, see above.
     socket.on('connectAgain', (client)=>{
         if(connectedArr.find(obj => obj.id === client.id)) {
             //if already in connectedArr, replace
