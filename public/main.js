@@ -36,6 +36,8 @@ function updateOutput() {
     peopleArr.forEach(person => {
         output.innerHTML += `<p>${person}</p>`;
     });
+    //scroll down
+    people.scrollTop = people.scrollHeight;
 }
 
 //DOM events
@@ -85,6 +87,7 @@ instructions.addEventListener('click', ()=>{
 
 //Listen for socket events
 socket.on('initializeLobby', (arr) =>{
+    peopleArr = [];
     arr.forEach(person => {
         peopleArr.push(person.name);
     });
