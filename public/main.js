@@ -19,6 +19,7 @@ var peopleArr = [];
 var numWords;
 var clueNum = 0;
 var name;
+var id;
 
 //quick title case
 // function toTitleCase(str) {
@@ -86,12 +87,15 @@ instructions.addEventListener('click', ()=>{
 
 
 //Listen for socket events
-socket.on('initializeLobby', (arr) =>{
+socket.on('refreshLobby', (arr) =>{
     peopleArr = [];
     arr.forEach(person => {
         peopleArr.push(person.name);
     });
     updateOutput();
+})
+socket.on('giveID', (socketID)=>{
+    id = socketID;
 })
 socket.on('addPerson', (person)=>{
     peopleArr.push(person);
@@ -119,7 +123,10 @@ socket.on('disconnect', ()=>{
         tagline.innerText = "Reconnected to the game!"
         if(typeof(name) != 'undefined') {
             //reconnect with name if name was entered before.
-            socket.emit('addPerson', name);
+            socket.emit('connectAgain', {
+                name: name,
+                id: id
+            });
         }
     })    
 })

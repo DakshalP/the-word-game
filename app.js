@@ -66,7 +66,16 @@ function randLetters(length) {
     return result;
  }
 
-
+function addPerson(name, id) {
+    connectedArr.push(
+        {
+            name: name,
+            id: id
+        }
+    )
+    console.log(connectedArr)
+    io.sockets.emit('addPerson', name);
+}
 
 //Socket setup
 var io = socket(server);
@@ -75,19 +84,13 @@ var previousBoard;
 
 io.on('connection', (socket)=>{
     console.log('made socket connection: ', socket.id);
-    socket.emit('initializeLobby', connectedArr);
+    socket.emit('refreshLobby', connectedArr);
+    socket.emit('giveID', socket.id);
     if(previousBoard != null) socket.emit('changeBoard', previousBoard);
 
     //handle events
     socket.on('addPerson', (name) => {
-        connectedArr.push(
-            {
-                name: name,
-                id: socket.id
-            }
-        )
-        console.log(connectedArr)
-        io.sockets.emit('addPerson', name);
+        addPerson(name, socket.id);
     });
 
     socket.on('giveWord', ()=>{
@@ -107,6 +110,16 @@ io.on('connection', (socket)=>{
             connectedArr.splice(id, 1);
         }
     });
+
+    socket.on('connectAgain', (client)=>{
+        if(connectedArr.find(obj => obj.id === client.id)) {
+            //if already in connectedArr, just refresh   
+            socket.emit('refreshLobby', connectedArr);
+        }else {
+            //else add the person back into connectedArr
+            addPerson(client.name, client.id);
+        }
+    })
 
     socket.on('changeBoard', (boardWords)=>{
         previousBoard = boardWords;
