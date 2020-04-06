@@ -77,6 +77,7 @@ function addPerson(name, id) {
 var io = socket(server);
 var connectedArr = [];
 var previousBoard;
+var clueNum = 0;
 
 io.on('connection', (socket)=>{
     console.log('made socket connection: ', socket.id);
@@ -95,10 +96,11 @@ io.on('connection', (socket)=>{
         addPerson(name, socket.id);
     });
 
-    socket.on('giveWord', ()=>{
+    socket.on('giveClue', ()=>{
         generateRoleArr(connectedArr.length);
+        clueNum++;
         for(let i=0;i<connectedArr.length;i++) {  
-            io.to(`${connectedArr[i].id}`).emit('giveWord', roleArr[i])
+            io.to(`${connectedArr[i].id}`).emit('giveClue', {word: roleArr[i], clueNum: clueNum})
         }
     })
 

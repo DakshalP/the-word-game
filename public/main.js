@@ -17,7 +17,6 @@ const join = document.getElementById('join'),
 
 var peopleArr = [];
 var numWords;
-var clueNum = 0;
 var name;
 var id;
 
@@ -59,7 +58,7 @@ join.addEventListener('click', ()=> {
 
 give.addEventListener('click', ()=>{
     if(confirm("Send word? Do this when everyone has joined.")) {
-        socket.emit('giveWord');
+        socket.emit('giveClue');
     }
 })
 
@@ -130,9 +129,8 @@ socket.on('disconnect', ()=>{
         }
     })    
 })
-socket.on('giveWord', (word) =>{
-    clueNum++;
-    clue.innerHTML = (word === "?") ? `<h3>Clue ${clueNum}</h3> You're the one who <strong>doesn't know the word</strong>... don't tell anyone.` : `<h3>Clue ${clueNum}</h3> The word is at <strong>${word}</strong>`;
+socket.on('giveClue', (data) =>{
+    clue.innerHTML = (data.word === "?") ? `<h3>Clue ${data.clueNum}</h3> You're the one who <strong>doesn't know the word</strong>... don't tell anyone.` : `<h3>Clue ${data.clueNum}</h3> The word is at <strong>${data.word}</strong>`;
     toggleModal();
 })
 socket.on('changeBoard', (boardWords)=>{
