@@ -104,10 +104,11 @@ io.on('connection', (socket)=>{
         console.log('Got disconnect!: ', socket.id);
   
         let id = searchId(socket.id, connectedArr);
-        if(typeof id !== "undefined") {
+        if(typeof(id) != "undefined") {
             console.log("REMOVE : " ,connectedArr[id].name);
             io.sockets.emit('removePerson', connectedArr[id]);
             connectedArr.splice(id, 1);
+            console.log(connectedArr);
         }
     });
 
