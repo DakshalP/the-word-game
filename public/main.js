@@ -1,6 +1,5 @@
 //Make connection
-var socket = io.connect('https://the-word-game.herokuapp.com/');
-
+var socket = io.connect('https://the-word-game.herokuapp.com');
 //Query DOM
 const join = document.getElementById('join'),
     namePrompt = document.getElementById('name'),
@@ -13,12 +12,14 @@ const join = document.getElementById('join'),
     board = document.getElementById('board'),
     give = document.getElementById('give'),
     clue = document.getElementById('clue'),
-    instructions = document.getElementById('instructions');
+    instructions = document.getElementById('instructions'), 
+    helpPrompt = document.getElementById('helpPrompt');
 
 var peopleArr = [];
 var numWords;
 var name;
 var id;
+var amHost = false;
 
 //quick title case
 // function toTitleCase(str) {
@@ -52,13 +53,17 @@ join.addEventListener('click', ()=> {
         controls.style.display = "block";
         people.style.height = "250px";
 
-        clue.innerText = "The clues have not been given yet."
+        clue.innerHTML = "<h3>Ask the host</h3> A clue has not been given to you yet. Ask the host to give you one. "
     }
 })
 
 give.addEventListener('click', ()=>{
-    if(confirm("Send word? Do this when everyone has joined.")) {
-        socket.emit('giveClue');
+    if(amHost) {
+        if(confirm("Send word? Do this when everyone has joined.")) {
+            socket.emit('giveClue', name);
+        }
+    } else {
+        socket.emit('askHost');
     }
 })
 
@@ -86,6 +91,10 @@ instructions.addEventListener('click', ()=>{
 
 
 //Listen for socket events
+socket.on('connect', ()=>{
+    console.log("Initial connection made.");
+})
+
 socket.on('refreshLobby', (arr) =>{
     peopleArr = [];
     arr.forEach(person => {
@@ -93,19 +102,58 @@ socket.on('refreshLobby', (arr) =>{
     });
     updateOutput();
 })
+
 socket.on('giveID', (socketID)=>{
     id = socketID;
 })
+
 socket.on('addPerson', (person)=>{
     peopleArr.push(person);
     updateOutput();
     //scroll down
     people.scrollTop = people.scrollHeight;
+
+    if(amHost && peopleArr.length > 1) {
+        helpPrompt.innerHTML = "A <strong> new person </strong> joined or reconnected. <br> Press <strong>give clues</strong> to get started. <br> (You are the host)"
+        helpPrompt.style.display = "block";
+    }
 })
+
 socket.on('removePerson', (person) => {
     peopleArr.splice(peopleArr.indexOf(person.name), 1)
     updateOutput();
 })
+
+socket.on('host', ()=>{
+    /*changing this variable just tells you you're the host (who can give clues), 
+    doesn't actually change the host for everyone.
+    Prevents tampering.
+    */
+    amHost = true;
+    give.style.display = "block";
+    give.style.backgroundColor = "#30915a"
+    helpPrompt.innerHTML = "You are the host! Press <strong>give clues</strong> to get started."
+})
+
+socket.on('removeHost', ()=>{
+    console.log("You were removed as host.")
+    amHost = false;
+    give.style.display = "none";
+    helpPrompt.innerHTML = "Ask the host to <strong>give out clues</strong> so that you can get started."
+})
+
+socket.on('askHost', (hostName)=>{
+    if(hostName != null) { alert(`Ask the host, ${hostName}, to give the clue.`) }
+    else {alert("Error, there is no host")}
+})
+
+socket.on('changeName', (namesObj)=>{
+    if(peopleArr.includes(namesObj.previousName) && !(peopleArr.includes(namesObj.newName))) {
+        peopleArr.splice(peopleArr.indexOf(namesObj.previousName), 1, namesObj.newName);
+        updateOutput();
+    }
+})
+
 socket.on('disconnect', ()=>{
     tagline.innerText = "Disconnected from the game... "
     if(typeof(name) != 'undefined') {
@@ -120,6 +168,8 @@ socket.on('disconnect', ()=>{
 
     socket.on('reconnect', ()=>{
         tagline.innerText = "Reconnected to the game!"
+        helpPrompt.style.display = "block";
+        helpPrompt.innerHTML = "<strong>You reconnected!</strong> <br> Ask the host to give out clues again so you can join the game."
         if(typeof(name) != 'undefined') {
             //reconnect with name if name was entered before.
             socket.emit('connectAgain', {
@@ -131,6 +181,7 @@ socket.on('disconnect', ()=>{
 })
 socket.on('giveClue', (data) =>{
     clue.innerHTML = (data.word === "?") ? `<h3>Clue ${data.clueNum}</h3> You're the one who <strong>doesn't know the word</strong>... don't tell anyone.` : `<h3>Clue ${data.clueNum}</h3> The word is at <strong>${data.word}</strong>`;
+    helpPrompt.style.display = "none";
     toggleModal();
 })
 socket.on('changeBoard', (boardWords)=>{
@@ -203,4 +254,8 @@ window.addEventListener("click", windowOnClick);
 // function randomId() {
 //     return (Math.random()*0xFFFFFF<<0).toString(16);
 // }
+
+function changeHost(passphrase){
+    socket.emit("changeHost", {passphrase: passphrase, name: name});
+}
 

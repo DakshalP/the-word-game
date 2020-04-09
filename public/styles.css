@@ -50,7 +50,7 @@ h3 {
     font-weight: 400;
 }
 
-#instructions {
+#instructions, #helpPrompt {
     text-align: center;
     color: var(--theme-color);
     width: 100%;

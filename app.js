@@ -1,6 +1,5 @@
 var express = require('express');
 var socket = require('socket.io')
-
 // App setup
 var app = express();
 
@@ -59,6 +58,9 @@ function randLetters(length) {
 
 function addPerson(name, id) {
     if(!(connectedArr.find(obj => obj.id === id))){
+        if(name === hostName) {
+            name += " <em>(Host)</em>"
+        }                                                                                                                                                                                                                                                          
         connectedArr.push(
             {
                 name: name,
@@ -78,11 +80,17 @@ var io = socket(server);
 var connectedArr = [];
 var previousBoard;
 var clueNum = 100;
+var hostName;
+var hostID;
 
 io.on('connection', (socket)=>{
     console.log('made socket connection: ', socket.id);
     socket.emit('refreshLobby', connectedArr);
     if(previousBoard != null) socket.emit('changeBoard', previousBoard);
+    socket.emit('changeName', {
+        previousName: hostName,
+        newName: `${hostName} <em>(Host)</em>`
+    })
 
     /* 
     This is a flaw that needs to be fixed.
@@ -93,15 +101,29 @@ io.on('connection', (socket)=>{
 
     //handle events
     socket.on('addPerson', (name) => {
+        //the first player to join can give the clues
+        if(connectedArr.length < 1) {
+            socket.emit('host');
+            hostName = name;
+            hostID = socket.id;
+        }
         addPerson(name, socket.id);
     });
 
-    socket.on('giveClue', ()=>{
-        generateRoleArr(connectedArr.length);
-        clueNum++;
-        for(let i=0;i<connectedArr.length;i++) {  
-            io.to(`${connectedArr[i].id}`).emit('giveClue', {word: roleArr[i], clueNum: clueNum})
+    socket.on('giveClue', (name)=>{
+        if(name === hostName) {
+            generateRoleArr(connectedArr.length);
+            clueNum++;
+            for(let i=0;i<connectedArr.length;i++) {  
+                io.to(`${connectedArr[i].id}`).emit('giveClue', {word: roleArr[i], clueNum: clueNum})
+            }
+        } else {
+            socket.emit("askHost", hostName)
         }
+    })
+
+    socket.on('askHost', ()=>{
+        socket.emit('askHost', hostName)
     })
 
     socket.on('disconnect', ()=> {
@@ -114,6 +136,20 @@ io.on('connection', (socket)=>{
             connectedArr.splice(index, 1);
             console.log(connectedArr);
         }
+
+        //if host disconnects, move onto the next person and make them the host.
+        if (socket.id === hostID) {
+            if(typeof(connectedArr[0]) != "undefined") {
+                console.log('NEW HOST', connectedArr[0].name)
+                io.to(`${connectedArr[0].id}`).emit('host');
+                hostName = connectedArr[0].name;
+                hostID = connectedArr[0].id;
+                io.sockets.emit('changeName', {
+                    previousName: connectedArr[0].name,
+                    newName: `${connectedArr[0].name} <em>(Host)</em>`
+                })
+            }
+        }
     });
 
 
@@ -125,12 +161,38 @@ io.on('connection', (socket)=>{
             socket.emit('refreshLobby', connectedArr);
         }else {
             //else add a new person back into connectedArr
+            if(connectedArr.length < 1) {
+                socket.emit('host');
+                hostName = client.name;
+                hostID = socket.id;
+            }
             addPerson(client.name, socket.id);
         }
     })
+    
 
     socket.on('changeBoard', (boardWords)=>{
         previousBoard = boardWords;
         io.sockets.emit('changeBoard', boardWords);
+    })
+
+    socket.on('changeHost', (obj) => {
+        if(obj.passphrase === "secret2020") {
+            io.sockets.emit('changeName', {
+                previousName: `${hostName} <em>(Host)</em>`,
+                newName: hostName
+            })
+            console.log("Remove host", hostID, connectedArr)
+            io.to(`${hostID}`).emit('removeHost');
+
+            console.log('NEW HOST', obj.name)
+            io.to(`${socket.id}`).emit('host');
+            hostName = obj.name;
+            hostID = socket.id;
+            io.sockets.emit('changeName', {
+                previousName: obj.name,
+                newName: `${obj.name} <em>(Host)</em>`
+            })
+        }
     })
 })

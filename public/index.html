@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Welcome to the game!</h2>
+        <h2 id="header">Welcome to the game!</h2>
         <p id="tagline">Join with your name.</p>
         <div id="people">
             <h3>People who have joined</h3>
@@ -24,8 +24,9 @@
         <div id="controls" style="display: none">
             <button id="trigger" class="emphasize">Show my clue</button>
             <div id="board"></div>
-            <button id="give">Give clues</button>
+            <button id="give" style="display: none">Give clues</button>
             <button id="boardButton">Create board</button>
+            <p id="helpPrompt">Ask the host to <strong>give out clues</strong> so that the game can get started.</p>
             </div>
         </div>
     </div>
