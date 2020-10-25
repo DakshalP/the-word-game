@@ -21,16 +21,6 @@ var name;
 var id;
 var amHost = false;
 
-//quick title case
-// function toTitleCase(str) {
-//     return str.replace(
-//         /\w\S*/g,
-//         function(txt) {
-//             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-//         }
-//     );
-// }
-
 function updateOutput() {
     console.log(peopleArr);
     output.innerHTML = "";
@@ -127,8 +117,8 @@ socket.on('removeHost', ()=>{
 })
 
 socket.on('askHost', (hostName)=>{
-    if(hostName != null) { alert(`Ask the host, ${hostName}, to give the clue.`) }
-    else {alert("Error, there is no host")}
+    if(hostName != null) { createAlertModal(`Ask the host, ${hostName}, to give the clue.`) }
+    else {createAlertModal("Error, there is no host")}
 })
 
 socket.on('changeName', (namesObj)=>{
@@ -239,13 +229,52 @@ closeButton.addEventListener("click", toggleModal);
 window.addEventListener("click", windowOnClick);
 
 //extra dynamic modals
-function createPromptModal(question, buttonText, wordLimit = 0) {
-    return new Promise((resolve, reject) => {
+
+
+function createModal(content) {
     let modal = document.createElement('div');
-        modal.classList.add('modal', 'show-modal')
-        modal.innerHTML = 
+    modal.classList.add('modal', 'show-modal')
+    modal.innerHTML = 
         `
             <div class="modal-content">
+                ${content}
+            </div>
+        `
+    document.querySelector("body").appendChild(modal);
+    return modal;
+}
+
+function createAlertModal(alertText, alertTitle) {
+    const modalContent = 
+    `
+        ${(alertTitle) ? `<h3>${alertTitle}</h3>` : ''}
+        <p>${alertText}</p>
+        <div class="close-button">Ok</div>
+    `
+    let modal = createModal(modalContent);
+    modal.getElementsByClassName('close-button')[0].addEventListener('click', ()=> {modal.remove();});
+    window.addEventListener('click', (event) => {if(event.target === modal) modal.remove();});
+}
+
+function addWordLimit(wordLimit, promptModal, input) {
+    let wordsDiv = promptModal.querySelector('#words-div')
+    input.addEventListener('keydown', (e)=>{
+        let words = [];
+        if(input.value.trim() != '') words = input.value.trim().split(/\s+/);
+        if(words.length < wordLimit) wordsDiv.innerHTML = `<h3>${words.length} out of ${wordLimit} words.</h3>`;
+        else {
+            wordsDiv.innerHTML = `<h3>${words.length} out of ${wordLimit} words.</h3>`
+            //prevent new word additions
+            if(e.code === "Space") input.maxLength = input.value.length;
+            if(e.code === "Backspace") input.maxLength = 524288; //default max input length
+        }
+    })
+}
+
+function createPromptModal(question, buttonText, wordLimit = 0) {
+    return new Promise((resolve, reject) => {
+        const modalContent = 
+        `
                 <p>${question}</p>
                 ${(wordLimit > 0) ? '<div id="words-div"></div>' : ''}
                 <input type="text" name="reply">
@@ -253,10 +282,9 @@ function createPromptModal(question, buttonText, wordLimit = 0) {
                     <div class="close-button">${buttonText}</div>
                     <div class="canceling close-button">Cancel</div>
                 </div>
-            </div>
         `
+        let modal = createModal(modalContent);
         let input = modal.querySelector('input[name=reply]');
-        
 
         let returnValue = () => {
             let reply = input.value;
@@ -269,22 +297,8 @@ function createPromptModal(question, buttonText, wordLimit = 0) {
         //on cancel button or window click just remove the modal
         modal.getElementsByClassName('close-button')[1].addEventListener('click', () => {modal.remove();});
         window.addEventListener('click', (event) => {if(event.target === modal) modal.remove();});
-        //add modal to dom
-        document.querySelector("body").appendChild(modal);
 
-        if(wordLimit > 0) {
-            let wordsDiv = modal.querySelector('#words-div')
-            input.addEventListener('keydown', (e)=>{
-                let words = [];
-                if(input.value.trim() != '') words = input.value.trim().split(/\s+/);
-                if(words.length <= wordLimit) wordsDiv.innerHTML = `<h3>${words.length} out of ${wordLimit} words.</h3>`;
-                else {
-                    //prevent new word additions
-                    if(e.code === "Space") input.maxLength = input.value.length;
-                    if(e.code === "Backspace") input.maxLength = 524288; //default max input length
-                }
-            })
-        }
+        if(wordLimit > 0) addWordLimit(wordLimit, modal, input);
     })
 }
 
@@ -293,9 +307,9 @@ async function newBoard(numWords) {
         let wordStr = await createPromptModal("Enter 16 words for the new board.", "Ok", numWords);
         let wordArr = wordStr.replaceAll(',', '').trim().split(' ');
         if(wordArr.length === numWords) socket.emit('changeBoard', wordArr);
-        else alert("Please enter 16 words");
+        else createAlertModal("Less than 16 words entered", "Please try again");
     }
     catch(err) {
-        alert(err);
+        createAlertModal(err, "Error");
     }
 }
