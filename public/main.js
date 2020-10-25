@@ -22,7 +22,6 @@ var id;
 var amHost = false;
 
 function updateOutput() {
-    console.log(peopleArr);
     output.innerHTML = "";
     peopleArr.forEach(person => {
         output.innerHTML += `<p>${person}</p>`;
@@ -47,13 +46,13 @@ join.addEventListener('click', ()=> {
     }
 })
 
-give.addEventListener('click', ()=>{
-    if(amHost) {
-        if(confirm("Send word? Do this when everyone has joined.")) {
-            socket.emit('giveClue', name);
-        }
-    } else {
-        socket.emit('askHost');
+give.addEventListener('click', async ()=>{
+    try {
+        if(amHost) {
+            if(await createConfirmModal("Send word? Do this when everyone has joined.")) socket.emit('giveClue', name);
+        } else socket.emit('askHost');
+    } catch (err) {
+        console.log(err);
     }
 })
 
@@ -244,16 +243,41 @@ function createModal(content) {
     return modal;
 }
 
-function createAlertModal(alertText, alertTitle) {
+function createAlertModal(text, title) {
     const modalContent = 
     `
-        ${(alertTitle) ? `<h3>${alertTitle}</h3>` : ''}
-        <p>${alertText}</p>
+        ${(title) ? `<h3>${title}</h3>` : ''}
+        <p>${text}</p>
         <div class="close-button">Ok</div>
     `
     let modal = createModal(modalContent);
     modal.getElementsByClassName('close-button')[0].addEventListener('click', ()=> {modal.remove();});
     window.addEventListener('click', (event) => {if(event.target === modal) modal.remove();});
+}
+
+function createConfirmModal(question, title) {
+    return new Promise((resolve, reject) => {
+        const modalContent = 
+        `
+            ${(title) ? `<h3>${title}</h3>` : ''}
+            <p>${question}</p>
+            <div class="close-button">Yes</div>
+            <div class="canceling close-button">No</div>
+        `
+        let modal = createModal(modalContent);
+        //positive reply
+        let sendYes = () => {modal.remove(); resolve(true);}
+        modal.getElementsByClassName('close-button')[0].addEventListener('click', sendYes);
+        //cancel/negative reply
+        let sendNo = () => {modal.remove(); resolve(false);}
+        modal.getElementsByClassName('close-button')[1].addEventListener('click', sendNo);
+        window.addEventListener('click', (event) => {
+            if(event.target === modal){
+                modal.remove()
+                reject("Err: Did not pick yes or no.");
+            }
+        });
+    })
 }
 
 function addWordLimit(wordLimit, promptModal, input) {
@@ -288,6 +312,7 @@ function createPromptModal(question, buttonText, wordLimit = 0) {
 
         let returnValue = () => {
             let reply = input.value;
+            modal.classList.toggle('show-modal');
             modal.remove();
             if(reply.trim() != '') resolve(reply)
             else reject("Please enter a value into the input.");
