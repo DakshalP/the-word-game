@@ -49,7 +49,7 @@ join.addEventListener('click', ()=> {
 give.addEventListener('click', async ()=>{
     try {
         if(amHost) {
-            if(await createConfirmModal("Send word? Do this when everyone has joined.")) socket.emit('giveClue', name);
+            if(await createConfirmModal("Give a clue?", "Give clues only when everyone has joined.")) socket.emit('giveClue', name);
         } else socket.emit('askHost');
     } catch (err) {
         console.log(err);
@@ -232,7 +232,7 @@ window.addEventListener("click", windowOnClick);
 
 function createModal(content) {
     let modal = document.createElement('div');
-    modal.classList.add('modal', 'show-modal')
+    modal.classList.add('modal', 'show-modal');
     modal.innerHTML = 
         `
             <div class="modal-content">
