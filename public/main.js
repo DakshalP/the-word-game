@@ -67,23 +67,7 @@ give.addEventListener('click', ()=>{
     }
 })
 
-boardButton.addEventListener('click', ()=>{
-    if(confirm("Are you sure you want to change the board?")) {
-        var boardWords = prompt("Enter 16 words seperated by a comma.");
-        
-        //this version allows for any number of words on board
-        // if(boardWords.trim() != "") {   
-        //     socket.emit('changeBoard', boardWords);
-        // }
-
-        //check if enough commas for 16 words
-        if([15,16].includes(boardWords.split(',').length-1)) {
-            socket.emit('changeBoard', boardWords);
-        } else {
-            alert('Sorry, 16 words seperated by a comma each were not detected');
-        }
-    }
-})
+boardButton.addEventListener('click', () => { newBoard(16);})
 
 instructions.addEventListener('click', ()=>{
     toggleModal();
@@ -184,8 +168,7 @@ socket.on('giveClue', (data) =>{
     helpPrompt.style.display = "none";
     toggleModal();
 })
-socket.on('changeBoard', (boardWords)=>{
-    let words = boardWords.split(',')
+socket.on('changeBoard', (words)=>{
     numWords = words.length;
 
     //group in groups of 4
@@ -234,7 +217,12 @@ socket.on('changeBoard', (boardWords)=>{
     `  
 })
 
-/* Modal */
+function changeHost(passphrase){
+    socket.emit("changeHost", {passphrase: passphrase, name: name});
+}
+
+/* Modals */
+//main clue modal
 const modal = document.querySelector(".modal");
 const trigger = document.querySelector("#trigger");
 const closeButton = document.querySelector(".close-button");
@@ -250,12 +238,64 @@ trigger.addEventListener("click", toggleModal);
 closeButton.addEventListener("click", toggleModal);
 window.addEventListener("click", windowOnClick);
 
-//random 6 digit hex id
-// function randomId() {
-//     return (Math.random()*0xFFFFFF<<0).toString(16);
-// }
+//extra dynamic modals
+function createPromptModal(question, buttonText, wordLimit = 0) {
+    return new Promise((resolve, reject) => {
+    let modal = document.createElement('div');
+        modal.classList.add('modal', 'show-modal')
+        modal.innerHTML = 
+        `
+            <div class="modal-content">
+                <p>${question}</p>
+                ${(wordLimit > 0) ? '<div id="words-div"></div>' : ''}
+                <input type="text" name="reply">
+                <div class="buttons">
+                    <div class="close-button">${buttonText}</div>
+                    <div class="canceling close-button">Cancel</div>
+                </div>
+            </div>
+        `
+        let input = modal.querySelector('input[name=reply]');
+        
 
-function changeHost(passphrase){
-    socket.emit("changeHost", {passphrase: passphrase, name: name});
+        let returnValue = () => {
+            let reply = input.value;
+            modal.remove();
+            if(reply.trim() != '') resolve(reply)
+            else reject("Please enter a value into the input.");
+        }
+        //on main button click return value
+        modal.getElementsByClassName('close-button')[0].addEventListener('click', returnValue);
+        //on cancel button or window click just remove the modal
+        modal.getElementsByClassName('close-button')[1].addEventListener('click', () => {modal.remove();});
+        window.addEventListener('click', (event) => {if(event.target === modal) modal.remove();});
+        //add modal to dom
+        document.querySelector("body").appendChild(modal);
+
+        if(wordLimit > 0) {
+            let wordsDiv = modal.querySelector('#words-div')
+            input.addEventListener('keydown', (e)=>{
+                let words = [];
+                if(input.value.trim() != '') words = input.value.trim().split(/\s+/);
+                if(words.length <= wordLimit) wordsDiv.innerHTML = `<h3>${words.length} out of ${wordLimit} words.</h3>`;
+                else {
+                    //prevent new word additions
+                    if(e.code === "Space") input.maxLength = input.value.length;
+                    if(e.code === "Backspace") input.maxLength = 524288; //default max input length
+                }
+            })
+        }
+    })
 }
 
+async function newBoard(numWords) {
+    try {
+        let wordStr = await createPromptModal("Enter 16 words for the new board.", "Ok", numWords);
+        let wordArr = wordStr.replaceAll(',', '').trim().split(' ');
+        if(wordArr.length === numWords) socket.emit('changeBoard', wordArr);
+        else alert("Please enter 16 words");
+    }
+    catch(err) {
+        alert(err);
+    }
+}

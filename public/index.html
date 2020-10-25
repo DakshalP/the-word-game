@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Word Game</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tagify/3.20.2/tagify.min.js" integrity="sha512-nA/oOUShUkMhHtxsWIh+vaaReAAWWay7y/zj+k2iGonRgFR1Qd7bCNphlfMxaSUZ3tav2Ay/hfoLRg/WNKjfCA==" crossorigin="anonymous"></script>
     <link rel="icon" type="image/png" href="/help-circle.svg">
     <link rel="stylesheet" href="/styles.css">
 </head>
@@ -19,7 +20,7 @@
         <div id="input">
             <input type="text" id="name" placeholder="Name">
             <button id="join">Join</button>
-            <a href="#" id="instructions">How to play</a>
+            <a href="#" id="instructions"><strong>How to play</strong></a>
         </div>
         <div id="controls" style="display: none">
             <button id="trigger" class="emphasize">Show my clue</button>
@@ -37,7 +38,7 @@
                 <ul>
                     <li>You start with a board with words on it. </li>
                     <li>Everyone will get the location of a word on the board... except for one person.</li>
-                    <li>After that, take turns saying a related word without giving away the secret word.</li>
+                    <li>Take turns saying a related word without giving away the secret word.</li>
                     <li>For example, if the word is apple you might say "red".</li>
                     <li><em>Even the person who doesn't know the word has to say a related word. Try not to get caught!</em></li>
                     <li><strong>At the end, everyone guesses who doesn't know the word.</strong></li>

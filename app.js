@@ -85,6 +85,7 @@ var hostID;
 
 io.on('connection', (socket)=>{
     console.log('made socket connection: ', socket.id);
+    
     socket.emit('refreshLobby', connectedArr);
     if(previousBoard != null) socket.emit('changeBoard', previousBoard);
     socket.emit('changeName', {

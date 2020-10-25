@@ -72,7 +72,7 @@ label{
     padding: 10px 20px;
 }
 
-input{
+input[type=text]{
     padding: 10px 20px;
     box-sizing: border-box;
     background: #eee;
@@ -193,12 +193,17 @@ ul li {
 .modal-content h3 {
     margin: 10px;
 }
-.close-button:hover {
-    background-color: var(--theme-color);
-}
 .show-modal {
     opacity: 1;
     visibility: visible;
     transform: scale(1.0);
     transition: visibility 0s linear 0s, opacity 0.25s 0s, transform 0.25s;
+}
+/* cancel button */
+.canceling {
+    background-color: whitesmoke;
+    color: var(--theme-color);
+}
+.buttons {
+    display: flex;
 }
