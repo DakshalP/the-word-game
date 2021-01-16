@@ -59,7 +59,7 @@ function randLetters(length) {
 function addPerson(name, id) {
     if(!(connectedArr.find(obj => obj.id === id))){
         if(name === hostName) {
-            name += " <em>(Host)</em>"
+            name += " (Host)"
         }                                                                                                                                                                                                                                                          
         connectedArr.push(
             {
@@ -90,7 +90,7 @@ io.on('connection', (socket)=>{
     if(previousBoard != null) socket.emit('changeBoard', previousBoard);
     socket.emit('changeName', {
         previousName: hostName,
-        newName: `${hostName} <em>(Host)</em>`
+        newName: `${hostName} (Host)`
     })
 
     /* 
@@ -147,7 +147,7 @@ io.on('connection', (socket)=>{
                 hostID = connectedArr[0].id;
                 io.sockets.emit('changeName', {
                     previousName: connectedArr[0].name,
-                    newName: `${connectedArr[0].name} <em>(Host)</em>`
+                    newName: `${connectedArr[0].name} (Host)`
                 })
             }
         }
@@ -180,7 +180,7 @@ io.on('connection', (socket)=>{
     socket.on('changeHost', (obj) => {
         if(obj.passphrase === "secret2020") {
             io.sockets.emit('changeName', {
-                previousName: `${hostName} <em>(Host)</em>`,
+                previousName: `${hostName} (Host)`,
                 newName: hostName
             })
             console.log("Remove host", hostID, connectedArr)
@@ -192,7 +192,7 @@ io.on('connection', (socket)=>{
             hostID = socket.id;
             io.sockets.emit('changeName', {
                 previousName: obj.name,
-                newName: `${obj.name} <em>(Host)</em>`
+                newName: `${obj.name} (Host)`
             })
         }
     })
